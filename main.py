@@ -83,7 +83,10 @@ def main():
         case_id = fname[: -len(".in")]
         with open(path.join(INPUT_DIR, fname), "r", encoding="utf-8") as fh:
             case = json.load(fh)
-        market = case["markets"][0]
+        markets = case.get("markets") or []
+        if not markets or not isinstance(markets[0].get("prices"), list):
+            continue  # malformed case: skip it instead of crashing mid-run
+        market = markets[0]
         out = json.dumps(
             {"forecasts": [{"case": case_id, "price": forecast(market["prices"])}]},
             separators=(",", ":"),
